@@ -5,22 +5,19 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.exc import OperationalError
 
 from config import Base, engine
+from config.cors import get_cors_origins
+from config.redis import connect_redis, disconnect_redis, is_redis_available
 from routers import json_comparison_router
 
 app = FastAPI()
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://127.0.0.1:5173",
-        "http://localhost:5173",
-        "http://127.0.0.1:4321",
-        "http://localhost:4321",
-        "http://127.0.0.1:3000",
-        "http://localhost:3000",
-    ],
+    allow_origins=get_cors_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 
@@ -38,6 +35,12 @@ def init_db(retries: int = 10, delay: float = 2.0) -> None:
 @app.on_event("startup")
 def on_startup() -> None:
     init_db()
+    connect_redis()
+
+
+@app.on_event("shutdown")
+def on_shutdown() -> None:
+    disconnect_redis()
 
 
 app.include_router(json_comparison_router)
@@ -45,4 +48,7 @@ app.include_router(json_comparison_router)
 
 @app.get("/")
 def home():
-    return "hello abhi"
+    return {
+        "message": "hello abhi",
+        "redis": "connected" if is_redis_available() else "unavailable",
+    }
