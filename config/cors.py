@@ -6,7 +6,6 @@ from dotenv import load_dotenv
 load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
 DEFAULT_DEV_ORIGINS = [
-    "https://comparejsononline.com",
     "http://127.0.0.1:5173",
     "http://localhost:5173",
     "http://127.0.0.1:4321",
