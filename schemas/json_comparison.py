@@ -15,6 +15,7 @@ class JSONComparisonCreate(JSONComparisonBase):
 
 class JSONComparisonResponse(JSONComparisonBase):
     id: int
+    share_token: str
     created_at: datetime
 
     class Config:
